@@ -212,12 +212,19 @@ int main(int argc, char* argv[])
     //for(int i = 0; i < argc; ++i)
     //    puts(argv[i]);
  
+    char* username;
+    username = getlogin();    // Получение имени пользователя
+
     char* input_file = NULL;
     char* output_file_archive = (char*)malloc(256);
-    strcpy(output_file_archive, "/home/jenkism/Desktop/arhive/temp");    // Папка по умолчанию для архивирования  
+    strcpy(output_file_archive, "/home/");
+    strcat(output_file_archive, username);
+    strcat(output_file_archive, "/Desktop/arhive/temp");   // Папка по умолчанию для архивирования  
 
     char* output_file_dearchive = (char*)malloc(256);
-    strcpy(output_file_dearchive, "/home/jenkism/Desktop/dearhive");    // Папка по умолчанию для разархивирования
+    strcpy(output_file_dearchive, "/home/");
+    strcat(output_file_dearchive, username);
+    strcat(output_file_dearchive, "/Desktop/dearhive");    // Папка по умолчанию для разархивирования
 
     // Проверка, что директория существует
     if (stat("/home/jenkism/Desktop/dearhive", &st) != 0)
