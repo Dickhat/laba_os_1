@@ -24,10 +24,10 @@ void search_dir(char* dir, char massive[1024][256], int* current_number_path, ch
 
     dp = opendir(dir);
 
-    // Проверка, что директорию можно открыть
-    if (dp == NULL)
-        printf("Can't open directory:%s\n", dir);
-        return;
+    //// Проверка, что директорию можно открыть
+    //if (dp == NULL)
+    //    printf("Can't open directory:%s\n", dir);
+    //    return;
 
     chdir(dir); //Смена текущей директории на dir
     
@@ -187,18 +187,16 @@ void dearchivate(char* in, char* out)
         }
 
         FILE * write_file = fopen(tem, "wb");
-        fprintf(stderr, "Error opening file: %s\n", strerror(errno));   
+        //fprintf(stderr, "Error opening file: %s\n", strerror(errno));   
 
         char* buffer = (char*)malloc(massive_sizes[i]*sizeof(char));            // Буфер данных
         fread(buffer, massive_sizes[i], 1, read_file);                          // Чтение
         
         size_t write_count = fwrite(buffer, massive_sizes[i], 1, write_file);   // Запись
-        if (write_count != 1)
-            fprintf(stderr, "Error writing data to file\n");
     
-        free (buffer);
+        free (buffer);      // Освобождение буфера
 
-        fclose(write_file);
+        fclose(write_file); // Закрытие файла
     }
 
     free(number_files);
@@ -208,47 +206,63 @@ void dearchivate(char* in, char* out)
 //  Основная программа
 int main(int argc, char* argv[])
 {
-    for(int i = 0; i < argc; ++i)
-        puts(argv[i]);
+    struct stat st; // Характеристика файлов
+
+    //// Печать аргументов
+    //for(int i = 0; i < argc; ++i)
+    //    puts(argv[i]);
  
     char* input_file = NULL;
     char* output_file_archive = (char*)malloc(256);
-    strcpy(output_file_archive, "/home/jenkism/Desktop/arhive/temp");      // Папка по умолчанию для архивирования  
+    strcpy(output_file_archive, "/home/jenkism/Desktop/arhive/temp");    // Папка по умолчанию для архивирования  
 
     char* output_file_dearchive = (char*)malloc(256);
     strcpy(output_file_dearchive, "/home/jenkism/Desktop/dearhive");    // Папка по умолчанию для разархивирования
 
+    // Проверка, что директория существует
+    if (stat("/home/jenkism/Desktop/dearhive", &st) != 0)
+    {
+        umask(0);
+        mkdir("/home/jenkism/Desktop/dearhive", S_IRWXU | S_IRWXG | S_IRWXO);
+    }
+
+   // Проверка, что директория существует
+    if (stat("/home/jenkism/Desktop/arhive/", &st) != 0)
+    {        
+        umask(0);
+        mkdir("/home/jenkism/Desktop/arhive/", S_IRWXU | S_IRWXG | S_IRWXO);
+    }
+
     //if Если не указана папка для разархивиривания или архивирования
     if (argc == 3)
     {
-        input_file = argv[2];
+        input_file = argv[2];   // Входной поток
     }
-    else
+    else if (argc == 4)
     {
         input_file = argv[2];
 
-        // Смена папок по умолчанию
+        // Смена папок по умолчанию для выходного потока
         if(strcmp(argv[1], "-a") == 0)
             strcpy(output_file_archive, argv[3]);
         else
             strcpy(output_file_dearchive, argv[3]);
-
+    }
+    else
+    {
+        printf(" Указано некорректное число аргументов в программе\n");
+        return 1;
     }
 
-    // Параметров для программы меньше или больше требуемого
-    if (argc < 2 || argc > 4)
-        printf("Number of arguments != 4\n");
-    // Корректное число параметров программы
+    // Указан ключ архивирования
+    if(strcmp(argv[1], "-a") == 0)
+        archivate(input_file, output_file_archive);
+    // Указан ключ разархивирования
+    else if (strcmp(argv[1], "-d") == 0)
+        dearchivate(input_file, output_file_dearchive);
+    // Указан некорректный ключ
     else
-        // Указан ключ архивирования
-        if(strcmp(argv[1], "-a") == 0)
-            archivate(input_file, output_file_archive);
-        // Указан ключ разархивирования
-        else if (strcmp(argv[1], "-d") == 0)
-            dearchivate(input_file, output_file_dearchive);
-        // Указан некорректный ключ
-        else
-            printf("Keys incorrect\n");
+        printf("Keys incorrect\n");
 
     free(output_file_archive);
     free(output_file_dearchive);
