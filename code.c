@@ -129,7 +129,7 @@ void archivate(char* in, char* out)
             {
                 // цикл копирования каждого байта данных из текущего файла в архив
                 for (int j = 0; j < massive_sizes[i]; ++j)
-                    fputc(fgetc(read_file), out_file);           // Побайтовая запись в файл
+                    fputc(fgetc(read_file), out_file);       // Побайтовая запись в файл
             }
 
             fclose(read_file);
@@ -219,7 +219,7 @@ int main(int argc, char* argv[])
     char* output_file_archive = (char*)malloc(256);
     strcpy(output_file_archive, "/home/");
     strcat(output_file_archive, username);
-    strcat(output_file_archive, "/Desktop/arhive/temp");   // Папка по умолчанию для архивирования  
+    strcat(output_file_archive, "/Desktop/arhive");     // Папка по умолчанию для архивирования  
 
     char* output_file_dearchive = (char*)malloc(256);
     strcpy(output_file_dearchive, "/home/");
@@ -227,18 +227,20 @@ int main(int argc, char* argv[])
     strcat(output_file_dearchive, "/Desktop/dearhive");    // Папка по умолчанию для разархивирования
 
     // Проверка, что директория существует
-    if (stat("/home/jenkism/Desktop/dearhive", &st) != 0)
+    if (stat(output_file_dearchive, &st) != 0)
     {
         umask(0);
-        mkdir("/home/jenkism/Desktop/dearhive", S_IRWXU | S_IRWXG | S_IRWXO);
+        mkdir(output_file_dearchive, S_IRWXU | S_IRWXG | S_IRWXO);
     }
 
    // Проверка, что директория существует
-    if (stat("/home/jenkism/Desktop/arhive/", &st) != 0)
+    if (stat(output_file_archive, &st) != 0)
     {        
         umask(0);
-        mkdir("/home/jenkism/Desktop/arhive/", S_IRWXU | S_IRWXG | S_IRWXO);
+        mkdir(output_file_archive, S_IRWXU | S_IRWXG | S_IRWXO);
     }
+    strcat(output_file_archive, "/temp");   
+
 
     //if Если не указана папка для разархивиривания или архивирования
     if (argc == 3)
